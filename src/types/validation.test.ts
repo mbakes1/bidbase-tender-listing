@@ -59,7 +59,7 @@ describe('Validation utilities', () => {
 
     it('should reject invalid status', () => {
       const filters: SearchFilters = {
-        status: 'invalid_status' as any
+        status: 'invalid_status' as never
       }
       const result = validateSearchFilters(filters)
       
@@ -169,7 +169,7 @@ describe('Validation utilities', () => {
 
     it('should reject invalid sort field', () => {
       const request: GetTendersRequest = {
-        sort_by: 'invalid_field' as any
+        sort_by: 'invalid_field' as never
       }
       const result = validateGetTendersRequest(request)
       
@@ -180,7 +180,7 @@ describe('Validation utilities', () => {
 
     it('should reject invalid sort order', () => {
       const request: GetTendersRequest = {
-        sort_order: 'invalid_order' as any
+        sort_order: 'invalid_order' as never
       }
       const result = validateGetTendersRequest(request)
       

@@ -102,7 +102,7 @@ export interface ErrorResponse {
   error: {
     code: string
     message: string
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   }
   timestamp: string
 }
@@ -207,47 +207,52 @@ export const SORT_ORDERS = {
 export const PAGE_SIZES = [12, 24, 48] as const
 
 // Type guards
-export const isTender = (obj: any): obj is Tender => {
+export const isTender = (obj: unknown): obj is Tender => {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+  
+  const record = obj as Record<string, unknown>
+  
   return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    typeof obj.id === 'string' &&
-    typeof obj.ocid === 'string' &&
-    typeof obj.title === 'string' &&
-    typeof obj.description === 'string' &&
-    typeof obj.buyer_name === 'string' &&
-    typeof obj.province === 'string' &&
-    typeof obj.industry === 'string' &&
-    typeof obj.submission_method === 'string' &&
-    typeof obj.language === 'string' &&
-    typeof obj.date_published === 'string' &&
-    typeof obj.date_closing === 'string' &&
-    ['open', 'closed', 'cancelled', 'awarded'].includes(obj.status) &&
-    Array.isArray(obj.documents) &&
-    typeof obj.created_at === 'string' &&
-    typeof obj.updated_at === 'string'
+    typeof record.id === 'string' &&
+    typeof record.ocid === 'string' &&
+    typeof record.title === 'string' &&
+    typeof record.description === 'string' &&
+    typeof record.buyer_name === 'string' &&
+    typeof record.province === 'string' &&
+    typeof record.industry === 'string' &&
+    typeof record.submission_method === 'string' &&
+    typeof record.language === 'string' &&
+    typeof record.date_published === 'string' &&
+    typeof record.date_closing === 'string' &&
+    ['open', 'closed', 'cancelled', 'awarded'].includes(record.status as string) &&
+    Array.isArray(record.documents) &&
+    typeof record.created_at === 'string' &&
+    typeof record.updated_at === 'string'
   )
 }
 
-export const isApiResponse = <T>(obj: any): obj is ApiResponse<T> => {
+export const isApiResponse = <T>(obj: unknown): obj is ApiResponse<T> => {
   return (
     typeof obj === 'object' &&
     obj !== null &&
-    typeof obj.success === 'boolean' &&
-    obj.data !== undefined &&
-    typeof obj.timestamp === 'string'
+    typeof (obj as Record<string, unknown>).success === 'boolean' &&
+    (obj as Record<string, unknown>).data !== undefined &&
+    typeof (obj as Record<string, unknown>).timestamp === 'string'
   )
 }
 
-export const isErrorResponse = (obj: any): obj is ErrorResponse => {
+export const isErrorResponse = (obj: unknown): obj is ErrorResponse => {
+  const record = obj as Record<string, unknown>
   return (
     typeof obj === 'object' &&
     obj !== null &&
-    obj.success === false &&
-    typeof obj.error === 'object' &&
-    obj.error !== null &&
-    typeof obj.error.code === 'string' &&
-    typeof obj.error.message === 'string' &&
-    typeof obj.timestamp === 'string'
+    record.success === false &&
+    typeof record.error === 'object' &&
+    record.error !== null &&
+    typeof (record.error as Record<string, unknown>).code === 'string' &&
+    typeof (record.error as Record<string, unknown>).message === 'string' &&
+    typeof record.timestamp === 'string'
   )
 }

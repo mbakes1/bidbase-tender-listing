@@ -162,7 +162,7 @@ export const validateGetTendersRequest = (request: GetTendersRequest): Validatio
 
   // Validate page_size
   if (request.page_size !== undefined) {
-    if (!PAGE_SIZES.includes(request.page_size as any)) {
+    if (!PAGE_SIZES.includes(request.page_size as typeof PAGE_SIZES[number])) {
       errors.push(createValidationError(
         'page_size',
         `Page size must be one of: ${PAGE_SIZES.join(', ')}`,
@@ -196,7 +196,7 @@ export const validateGetTendersRequest = (request: GetTendersRequest): Validatio
 }
 
 // Tender document validation
-export const validateTenderDocument = (doc: any): ValidationResult => {
+export const validateTenderDocument = (doc: unknown): ValidationResult => {
   const errors: ValidationError[] = []
 
   if (!doc || typeof doc !== 'object') {
@@ -208,8 +208,10 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     return { isValid: false, errors }
   }
 
+  const document = doc as Record<string, unknown>
+
   // Required fields
-  if (!doc.id || typeof doc.id !== 'string') {
+  if (!document.id || typeof document.id !== 'string') {
     errors.push(createValidationError(
       'id',
       'Document ID is required and must be a string',
@@ -217,7 +219,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (!doc.title || typeof doc.title !== 'string') {
+  if (!document.title || typeof document.title !== 'string') {
     errors.push(createValidationError(
       'title',
       'Document title is required and must be a string',
@@ -225,13 +227,13 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (!doc.url || typeof doc.url !== 'string') {
+  if (!document.url || typeof document.url !== 'string') {
     errors.push(createValidationError(
       'url',
       'Document URL is required and must be a string',
       'MISSING_DOCUMENT_URL'
     ))
-  } else if (!isValidUrl(doc.url)) {
+  } else if (!isValidUrl(document.url as string)) {
     errors.push(createValidationError(
       'url',
       'Document URL must be a valid URL',
@@ -239,7 +241,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (!doc.format || typeof doc.format !== 'string') {
+  if (!document.format || typeof document.format !== 'string') {
     errors.push(createValidationError(
       'format',
       'Document format is required and must be a string',
@@ -247,7 +249,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (!doc.document_type || typeof doc.document_type !== 'string') {
+  if (!document.document_type || typeof document.document_type !== 'string') {
     errors.push(createValidationError(
       'document_type',
       'Document type is required and must be a string',
@@ -255,7 +257,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (!doc.language || typeof doc.language !== 'string') {
+  if (!document.language || typeof document.language !== 'string') {
     errors.push(createValidationError(
       'language',
       'Document language is required and must be a string',
@@ -264,7 +266,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
   }
 
   // Optional date fields validation
-  if (doc.date_published && !isValidDate(doc.date_published)) {
+  if (document.date_published && !isValidDate(document.date_published as string)) {
     errors.push(createValidationError(
       'date_published',
       'Document published date must be in YYYY-MM-DD format',
@@ -272,7 +274,7 @@ export const validateTenderDocument = (doc: any): ValidationResult => {
     ))
   }
 
-  if (doc.date_modified && !isValidDate(doc.date_modified)) {
+  if (document.date_modified && !isValidDate(document.date_modified as string)) {
     errors.push(createValidationError(
       'date_modified',
       'Document modified date must be in YYYY-MM-DD format',
