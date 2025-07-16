@@ -72,7 +72,7 @@ const formatLastUpdated = (timestamp: string): string => {
         minute: '2-digit'
       })
     }
-  } catch (error) {
+  } catch {
     return 'Unknown'
   }
 }

@@ -8,11 +8,17 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
     }
     
-    // Ignore Supabase functions directory
+    // Ignore Supabase functions directory and test files
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: ['**/supabase/functions/**']
+      ignored: ['**/supabase/functions/**', '**/*.test.*', '**/*.spec.*']
     }
+    
+    // Exclude test files from compilation
+    config.module.rules.push({
+      test: /\.(test|spec)\.(js|jsx|ts|tsx)$/,
+      loader: 'ignore-loader'
+    })
     
     return config
   },
@@ -22,10 +28,13 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   
-  // Exclude Supabase functions from ESLint
+  // Exclude Supabase functions and test files from ESLint
   eslint: {
     dirs: ['src', 'app'],
+    ignoreDuringBuilds: false,
   },
+  
+
 };
 
 export default nextConfig;
