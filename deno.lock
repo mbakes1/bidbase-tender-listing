@@ -1,0 +1,42 @@
+{
+  "version": "5",
+  "remote": {
+    "https://deno.land/std@0.168.0/fmt/colors.ts": "03ad95e543d2808bc43c17a3dd29d25b43d0f16287fe562a0be89bf632454a12",
+    "https://deno.land/std@0.168.0/testing/_diff.ts": "a23e7fc2b4d8daa3e158fa06856bedf5334ce2a2831e8bf9e509717f455adb2c",
+    "https://deno.land/std@0.168.0/testing/_format.ts": "cd11136e1797791045e639e9f0f4640d5b4166148796cad37e6ef75f7d7f3832",
+    "https://deno.land/std@0.168.0/testing/asserts.ts": "51353e79437361d4b02d8e32f3fc83b22231bc8f8d4c841d86fd32b0b0afe940"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@eslint/eslintrc@3",
+        "npm:@radix-ui/react-select@^2.2.5",
+        "npm:@radix-ui/react-slot@^1.2.3",
+        "npm:@supabase/supabase-js@^2.51.0",
+        "npm:@tailwindcss/postcss@4",
+        "npm:@testing-library/jest-dom@^6.6.3",
+        "npm:@testing-library/react@^16.3.0",
+        "npm:@testing-library/user-event@^14.6.1",
+        "npm:@types/node@20",
+        "npm:@types/react-dom@19",
+        "npm:@types/react@19",
+        "npm:@vitejs/plugin-react@^4.6.0",
+        "npm:class-variance-authority@~0.7.1",
+        "npm:clsx@^2.1.1",
+        "npm:eslint-config-next@15.4.1",
+        "npm:eslint@9",
+        "npm:jsdom@^26.1.0",
+        "npm:lucide-react@0.525",
+        "npm:next@15.4.1",
+        "npm:react-dom@19.1.0",
+        "npm:react@19.1.0",
+        "npm:swr@^2.3.4",
+        "npm:tailwind-merge@^3.3.1",
+        "npm:tailwindcss@4",
+        "npm:tw-animate-css@^1.3.5",
+        "npm:typescript@5",
+        "npm:vitest@^3.2.4"
+      ]
+    }
+  }
+}

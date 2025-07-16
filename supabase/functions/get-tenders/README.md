@@ -1,249 +1,164 @@
-# get-tenders Edge Function
+# Get Tenders Edge Function
 
-This Supabase Edge Function provides a comprehensive API endpoint for searching and filtering tender opportunities with advanced features including full-text search, pagination, sorting, and filtering capabilities.
+This Edge Function provides a comprehensive API for searching, filtering, and retrieving tender data with enhanced statistics and filter options.
 
-## Endpoint
+## Features
 
-**POST** `/functions/v1/get-tenders`
+### Enhanced Statistics (Requirements 6.1-6.4)
 
-## Request Format
+- **Total tenders**: Complete count of all tenders in the database
+- **Status breakdown**: Counts for open, closed, cancelled, and awarded tenders
+- **Closing soon**: Count of tenders closing within the next 7 days
+- **Total value**: Sum of all open tender values
+- **Last updated**: Timestamp of the most recent data update
+
+### Dynamic Filter Options (Requirements 2.3, 3.3)
+
+- **Provinces**: Available South African provinces with tender counts
+- **Industries**: Available industry categories with tender counts
+- **Statuses**: All tender statuses with their respective counts
+
+### Advanced Search and Filtering
+
+- **Full-text search**: Across titles, descriptions, and buyer names
+- **Geographic filtering**: By South African provinces
+- **Industry filtering**: By business sector categories
+- **Status filtering**: By tender status (open, closed, cancelled, awarded)
+- **Date range filtering**: By publication and closing dates
+- **Value range filtering**: By tender monetary value
+
+### Performance Optimizations
+
+- **Database indexes**: Optimized for common query patterns
+- **Materialized views**: Cached statistics for improved performance
+- **Partial indexes**: Specialized indexes for frequently filtered data
+- **Composite indexes**: Multi-column indexes for complex queries
+
+## API Request Format
 
 ```json
 {
   "filters": {
-    "search": "string (optional) - Full-text search across title, description, and buyer name",
-    "province": "string (optional) - Filter by South African province",
-    "industry": "string (optional) - Filter by industry category",
-    "status": "string (optional) - Filter by tender status: 'open', 'closed', 'cancelled', 'awarded'",
-    "date_from": "string (optional) - Filter tenders published from this date (YYYY-MM-DD)",
-    "date_to": "string (optional) - Filter tenders published until this date (YYYY-MM-DD)",
-    "min_value": "number (optional) - Minimum tender value",
-    "max_value": "number (optional) - Maximum tender value"
+    "search": "technology",
+    "province": "Western Cape",
+    "industry": "Technology",
+    "status": "open",
+    "date_from": "2024-01-01",
+    "date_to": "2024-12-31",
+    "min_value": 10000,
+    "max_value": 1000000
   },
-  "page": "number (optional, default: 1) - Page number for pagination",
-  "page_size": "number (optional, default: 12) - Number of results per page (12, 24, or 48)",
-  "sort_by": "string (optional, default: 'date_published') - Sort field: 'date_published', 'date_closing', 'value_amount', 'title'",
-  "sort_order": "string (optional, default: 'desc') - Sort order: 'asc' or 'desc'"
+  "page": 1,
+  "page_size": 12,
+  "sort_by": "date_published",
+  "sort_order": "desc"
 }
 ```
 
-## Response Format
-
-### Success Response (200)
+## API Response Format
 
 ```json
 {
   "success": true,
   "data": {
-    "tenders": [
-      {
-        "id": "uuid",
-        "ocid": "string",
-        "title": "string",
-        "description": "string",
-        "buyer_name": "string",
-        "buyer_contact_email": "string",
-        "buyer_contact_phone": "string",
-        "province": "string",
-        "industry": "string",
-        "value_amount": "number",
-        "value_currency": "string",
-        "submission_method": "string",
-        "language": "string",
-        "date_published": "ISO 8601 datetime",
-        "date_closing": "ISO 8601 datetime",
-        "status": "string",
-        "documents": [
-          {
-            "id": "uuid",
-            "title": "string",
-            "description": "string",
-            "url": "string",
-            "format": "string",
-            "document_type": "string",
-            "language": "string",
-            "date_published": "ISO 8601 datetime",
-            "date_modified": "ISO 8601 datetime"
-          }
-        ],
-        "created_at": "ISO 8601 datetime",
-        "updated_at": "ISO 8601 datetime"
-      }
-    ],
+    "tenders": [...],
     "pagination": {
-      "current_page": "number",
-      "total_pages": "number",
-      "page_size": "number",
-      "total_count": "number",
-      "has_next": "boolean",
-      "has_previous": "boolean"
+      "current_page": 1,
+      "total_pages": 5,
+      "page_size": 12,
+      "total_count": 60,
+      "has_next": true,
+      "has_previous": false
     },
     "stats": {
-      "total_tenders": "number",
-      "open_tenders": "number",
-      "closing_soon_tenders": "number",
-      "total_value": "number",
-      "last_updated": "ISO 8601 datetime"
+      "total_tenders": 100,
+      "open_tenders": 75,
+      "closed_tenders": 15,
+      "cancelled_tenders": 5,
+      "awarded_tenders": 5,
+      "closing_soon_tenders": 10,
+      "total_value": 50000000,
+      "last_updated": "2024-01-15T10:30:00Z"
     },
     "filters": {
       "provinces": [
-        {
-          "value": "string",
-          "label": "string",
-          "count": "number"
-        }
+        { "value": "Western Cape", "label": "Western Cape", "count": 25 }
       ],
       "industries": [
-        {
-          "value": "string",
-          "label": "string",
-          "count": "number"
-        }
+        { "value": "Technology", "label": "Technology", "count": 15 }
       ],
       "statuses": [
-        {
-          "value": "string",
-          "label": "string",
-          "count": "number"
-        }
+        { "value": "open", "label": "Open", "count": 75 },
+        { "value": "closed", "label": "Closed", "count": 15 },
+        { "value": "cancelled", "label": "Cancelled", "count": 5 },
+        { "value": "awarded", "label": "Awarded", "count": 5 }
       ]
     }
   },
-  "timestamp": "ISO 8601 datetime"
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-### Error Response (400/500)
+## Database Functions
 
-```json
-{
-  "success": false,
-  "error": {
-    "code": "string",
-    "message": "string",
-    "details": "object (optional)"
-  },
-  "timestamp": "ISO 8601 datetime"
-}
-```
+### get_platform_stats()
 
-## Features
+Returns comprehensive platform statistics including:
 
-### Full-Text Search
+- Total tender counts by status
+- Closing soon calculations
+- Total value of open tenders
+- Last updated timestamp
 
-- Searches across tender titles, descriptions, and buyer names
-- Uses PostgreSQL's full-text search with GIN indexes for performance
-- Supports complex search queries
+### get_filter_options()
 
-### Advanced Filtering
+Returns dynamic filter options with counts:
 
-- **Province filtering**: Filter by South African provinces
-- **Industry filtering**: Filter by categorized industries
-- **Status filtering**: Filter by tender status (open, closed, cancelled, awarded)
-- **Date range filtering**: Filter by publication date range
-- **Value range filtering**: Filter by tender value range
+- Available provinces with tender counts
+- Available industries with tender counts
+- Optimized for open tenders only
 
-### Pagination
+### search_tenders()
 
-- Configurable page sizes: 12, 24, or 48 results per page
-- Complete pagination metadata including total counts and navigation flags
-- Efficient LIMIT/OFFSET implementation
+Advanced search function with:
 
-### Sorting
+- Full-text search capabilities
+- Dynamic filtering by multiple criteria
+- Pagination support
+- Flexible sorting options
 
-- Sort by publication date, closing date, value amount, or title
-- Ascending or descending order
-- Database-level sorting for performance
+## Performance Features
 
-### Performance Optimizations
+### Database Indexes
 
-- Database indexes on all filterable fields
-- GIN indexes for full-text search
+- Full-text search index using GIN
+- Status-based partial indexes
 - Composite indexes for common query patterns
-- Efficient query construction with dynamic WHERE clauses
+- Value-based indexes for calculations
 
-## Validation
+### Materialized Views
 
-The function performs comprehensive request validation:
-
-- **Search term**: Maximum 500 characters
-- **Page**: Must be positive integer
-- **Page size**: Must be 12, 24, or 48
-- **Sort fields**: Must be valid field names
-- **Sort order**: Must be 'asc' or 'desc'
-- **Dates**: Must be in YYYY-MM-DD format
-- **Date ranges**: From date cannot be after to date
-- **Value ranges**: Must be non-negative numbers, min cannot exceed max
-- **Status**: Must be valid tender status
-
-## Error Codes
-
-- `METHOD_NOT_ALLOWED`: Only POST requests are accepted
-- `INVALID_JSON`: Request body is not valid JSON
-- `VALIDATION_ERROR`: Request validation failed (includes detailed field errors)
-- `DATABASE_ERROR`: Database operation failed
-- `INTERNAL_ERROR`: Unexpected server error
-
-## Example Usage
-
-### Basic Search
-
-```bash
-curl -X POST https://your-project.supabase.co/functions/v1/get-tenders \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ANON_KEY" \
-  -d '{
-    "filters": {
-      "search": "construction",
-      "province": "Western Cape",
-      "status": "open"
-    },
-    "page": 1,
-    "page_size": 24
-  }'
-```
-
-### Advanced Filtering
-
-```bash
-curl -X POST https://your-project.supabase.co/functions/v1/get-tenders \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ANON_KEY" \
-  -d '{
-    "filters": {
-      "search": "IT services",
-      "province": "Gauteng",
-      "industry": "Technology",
-      "date_from": "2024-01-01",
-      "date_to": "2024-12-31",
-      "min_value": 100000,
-      "max_value": 1000000
-    },
-    "page": 1,
-    "page_size": 12,
-    "sort_by": "value_amount",
-    "sort_order": "desc"
-  }'
-```
-
-## Database Dependencies
-
-This function relies on the following database functions:
-
-- `search_tenders()`: Main search and filtering logic
-- `get_platform_stats()`: Platform statistics calculation
-- `get_filter_options()`: Available filter options with counts
-
-Ensure all database migrations are applied before using this function.
+- `tender_stats_cache`: Cached statistics for improved performance
+- Refresh function: `refresh_tender_stats_cache()`
 
 ## Testing
 
-Run the included tests with:
+Run the test suite:
 
 ```bash
 deno test --allow-net test.ts
+deno test --allow-net integration-test.ts
 ```
 
-## CORS Support
+## Requirements Compliance
 
-The function includes CORS headers to support browser-based requests from any origin. In production, consider restricting the `Access-Control-Allow-Origin` header to your specific domain.
+This implementation satisfies the following requirements:
+
+- **6.1**: Display total number of tenders
+- **6.2**: Display count of currently open tenders
+- **6.3**: Show tenders closing within next 7 days
+- **6.4**: Show last updated timestamp
+- **2.3**: Display tender count for each province
+- **3.3**: Display tender count for each industry category
+- **8.1**: Use appropriate database indexes
+- **8.2**: Use GIN indexes for full-text search

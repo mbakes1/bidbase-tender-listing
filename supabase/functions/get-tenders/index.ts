@@ -391,8 +391,11 @@ serve(async (req) => {
         stats: {
           total_tenders: statsData?.total_tenders || 0,
           open_tenders: statsData?.open_tenders || 0,
+          closed_tenders: statsData?.closed_tenders || 0,
+          cancelled_tenders: statsData?.cancelled_tenders || 0,
+          awarded_tenders: statsData?.awarded_tenders || 0,
           closing_soon_tenders: statsData?.closing_soon || 0,
-          total_value: 0, // This would need to be calculated separately if needed
+          total_value: statsData?.total_value || 0,
           last_updated: statsData?.last_updated || new Date().toISOString()
         },
         filters: {
@@ -400,9 +403,9 @@ serve(async (req) => {
           industries: filterOptions?.industries || [],
           statuses: [
             { value: 'open', label: 'Open', count: statsData?.open_tenders || 0 },
-            { value: 'closed', label: 'Closed' },
-            { value: 'cancelled', label: 'Cancelled' },
-            { value: 'awarded', label: 'Awarded' }
+            { value: 'closed', label: 'Closed', count: statsData?.closed_tenders || 0 },
+            { value: 'cancelled', label: 'Cancelled', count: statsData?.cancelled_tenders || 0 },
+            { value: 'awarded', label: 'Awarded', count: statsData?.awarded_tenders || 0 }
           ]
         }
       },
