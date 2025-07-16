@@ -1,3 +1,5 @@
+/// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -260,11 +262,10 @@ class OCDSClient {
     this.apiKey = apiKey
   }
 
-  async fetchReleases(limit = 100, offset = 0): Promise<OCDSRelease[]> {
-    const url = new URL(`${this.baseUrl}/releases`)
-    url.searchParams.set('limit', limit.toString())
-    url.searchParams.set('offset', offset.toString())
-    url.searchParams.set('order', '-date')
+  async fetchReleases(pageNumber = 1, pageSize = 100): Promise<OCDSRelease[]> {
+    const url = new URL(`${this.baseUrl}/api/OCDSReleases`);
+    url.searchParams.set('PageNumber', pageNumber.toString());
+    url.searchParams.set('PageSize', pageSize.toString());
 
     const headers: Record<string, string> = {
       'Accept': 'application/json',
@@ -282,8 +283,8 @@ class OCDSClient {
         throw new Error(`OCDS API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json()
-      return data.releases || []
+      const releasePackage = await response.json()
+      return releasePackage.releases || []
     } catch (error) {
       console.error('Failed to fetch OCDS releases:', error)
       throw error
@@ -370,7 +371,7 @@ function transformRelease(release: OCDSRelease): any {
   let status = 'open'
   if (release.tender.status === 'cancelled') {
     status = 'cancelled'
-  } else if (release.tender.status === 'complete' || release.awards?.length) {
+  } else if (release.tender.status === 'complete' || (release.awards && release.awards.length > 0)) {
     status = 'awarded'
   } else if (release.tender.tenderPeriod?.endDate) {
     const closingDate = new Date(release.tender.tenderPeriod.endDate)
@@ -493,15 +494,15 @@ serve(async (req) => {
 
   try {
     // Parse request body for configuration
-    let config: { limit?: number; offset?: number } = {}
+    let config: { pageSize?: number; pageNumber?: number } = {}
     try {
       config = await req.json()
     } catch {
       // Use defaults if no body provided
     }
 
-    const limit = config.limit || 100
-    const offset = config.offset || 0
+    const pageSize = config.pageSize || 100
+    const pageNumber = config.pageNumber || 1
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -513,10 +514,10 @@ serve(async (req) => {
     const ocdsApiKey = Deno.env.get('OCDS_API_KEY')
     const ocdsClient = new OCDSClient(ocdsUrl, ocdsApiKey)
 
-    console.log(`Starting sync: fetching ${limit} releases from offset ${offset}`)
+    console.log(`Starting sync: fetching page ${pageNumber} with size ${pageSize}`)
 
     // Fetch releases from OCDS API
-    const releases = await ocdsClient.fetchReleases(limit, offset)
+    const releases = await ocdsClient.fetchReleases(pageNumber, pageSize)
     console.log(`Fetched ${releases.length} releases from OCDS API`)
 
     let processedCount = 0

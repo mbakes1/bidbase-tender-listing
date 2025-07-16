@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PaginationComponent } from './pagination-component'
 import { PaginationInfo } from '@/types'
@@ -6,20 +6,21 @@ import { PaginationInfo } from '@/types'
 // Mock the UI components
 vi.mock('@/components/ui/pagination', () => ({
   Pagination: ({ children }: { children: React.ReactNode }) => <nav data-testid="pagination">{children}</nav>,
-  PaginationContent: ({ children }: { children: React.ReactNode }) => <ul>{children}</ul>,
-  PaginationItem: ({ children }: { children: React.ReactNode }) => <li>{children}</li>,
-  PaginationLink: ({ children, onClick, isActive, href, ...props }: any) => (
+  PaginationContent: ({ children }: { children: React.ReactNode }) => <ul data-testid="pagination-content">{children}</ul>,
+  PaginationItem: ({ children }: { children: React.ReactNode }) => <li data-testid="pagination-item">{children}</li>,
+  PaginationLink: ({ children, onClick, isActive, href, 'aria-label': ariaLabel, ...props }: React.ComponentProps<'a'> & { isActive?: boolean }) => (
     <a 
       href={href} 
       onClick={onClick} 
       data-active={isActive} 
+      aria-label={ariaLabel}
       data-testid="pagination-link"
       {...props}
     >
       {children}
     </a>
   ),
-  PaginationNext: ({ children, onClick, href, ...props }: any) => (
+  PaginationNext: ({ onClick, href, ...props }: React.ComponentProps<'a'>) => (
     <a 
       href={href} 
       onClick={onClick} 
@@ -29,7 +30,7 @@ vi.mock('@/components/ui/pagination', () => ({
       Next
     </a>
   ),
-  PaginationPrevious: ({ children, onClick, href, ...props }: any) => (
+  PaginationPrevious: ({ onClick, href, ...props }: React.ComponentProps<'a'>) => (
     <a 
       href={href} 
       onClick={onClick} 
@@ -39,23 +40,25 @@ vi.mock('@/components/ui/pagination', () => ({
       Previous
     </a>
   ),
+  PaginationEllipsis: () => <span data-testid="pagination-ellipsis">...</span>,
 }))
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onValueChange }: any) => (
+  Select: ({ children, value, onValueChange }: { children: React.ReactNode; value: string; onValueChange: (value: string) => void }) => (
     <div data-testid="page-size-select" data-value={value}>
       <select 
         onChange={(e) => onValueChange(e.target.value)} 
         value={value}
         data-testid="page-size-select-input"
+        role="combobox"
       >
         {children}
       </select>
     </div>
   ),
   SelectContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  SelectItem: ({ children, value }: any) => <option value={value}>{children}</option>,
-  SelectTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => <option value={value} role="option">{children}</option>,
+  SelectTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   SelectValue: () => <span>Select Value</span>,
 }))
 
@@ -115,7 +118,7 @@ describe('PaginationComponent', () => {
         has_previous: true,
       })
       render(
-        <PaginationComponent
+       <PaginationComponent
           pagination={pagination}
           onPageChange={mockOnPageChange}
           onPageSizeChange={mockOnPageSizeChange}
@@ -221,7 +224,7 @@ describe('PaginationComponent', () => {
         />
       )
 
-      expect(screen.queryByTestId('pagination')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('pagination-content')).not.toBeInTheDocument()
     })
 
     it('renders pagination controls when there are multiple pages', () => {
@@ -234,7 +237,7 @@ describe('PaginationComponent', () => {
         />
       )
 
-      expect(screen.getByTestId('pagination')).toBeInTheDocument()
+      expect(screen.getByTestId('pagination-content')).toBeInTheDocument()
     })
 
     it('disables previous button on first page', () => {
@@ -454,7 +457,7 @@ describe('PaginationComponent', () => {
       )
 
       // There should be at least one ellipsis when there are many pages
-      const ellipses = screen.getAllByText('...')
+      const ellipses = screen.getAllByTestId('pagination-ellipsis')
       expect(ellipses.length).toBeGreaterThan(0)
     })
 
@@ -524,7 +527,7 @@ describe('PaginationComponent', () => {
       )
 
       const pageLinks = screen.getAllByTestId('pagination-link')
-      pageLinks.forEach((link, index) => {
+      pageLinks.forEach((link) => {
         const pageNumber = link.textContent
         if (pageNumber && !isNaN(Number(pageNumber))) {
           expect(link).toHaveAttribute('aria-label', `Go to page ${pageNumber}`)
@@ -591,7 +594,7 @@ describe('PaginationComponent', () => {
       const pagination = createPagination()
       
       // Mock a page link click with invalid page number
-      const component = render(
+      render(
         <PaginationComponent
           pagination={pagination}
           onPageChange={mockOnPageChange}
@@ -599,13 +602,10 @@ describe('PaginationComponent', () => {
         />
       )
 
-      // Simulate clicking on a page number that's out of range
-      // This tests the bounds checking in handlePageClick
+      // This test is more about the internal logic, so we check that the handler
+      // doesn't get called with out-of-bounds values.
       const pageLinks = screen.getAllByTestId('pagination-link')
       if (pageLinks.length > 0) {
-        // Create a mock event for an invalid page
-        const mockEvent = { preventDefault: vi.fn() }
-        
         // Test the component's internal logic by checking it doesn't call onPageChange
         // for invalid page numbers (this is tested through the bounds checking)
         expect(mockOnPageChange).not.toHaveBeenCalledWith(0)

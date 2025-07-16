@@ -1,9 +1,7 @@
 import { supabase } from './supabase'
 import type {
   GetTendersRequest,
-  TenderListResponse,
-  ApiResponse,
-  ErrorResponse
+  TenderListResponse
 } from '../types'
 import { isApiResponse, isErrorResponse } from '../types'
 
@@ -67,7 +65,7 @@ const withRetry = async <T>(
   maxRetries: number = API_CONFIG.MAX_RETRIES,
   baseDelay: number = API_CONFIG.RETRY_DELAY
 ): Promise<T> => {
-  let lastError: Error
+  let lastError: Error = new Error('Unknown error')
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -156,7 +154,7 @@ const callEdgeFunction = async <T>(
         if (data.error.code === 'VALIDATION_ERROR') {
           throw new ValidationError(
             data.error.message,
-            Array.isArray(data.error.details) ? data.error.details as any[] : []
+            Array.isArray(data.error.details) ? data.error.details as Array<{ field: string; message: string; code: string }> : []
           )
         }
         
@@ -208,7 +206,7 @@ const callEdgeFunction = async <T>(
 
 // Specific API functions
 export const getTenders = async (request: GetTendersRequest = {}): Promise<TenderListResponse> => {
-  return callEdgeFunction<TenderListResponse>('get-tenders', request)
+  return callEdgeFunction<TenderListResponse>('get-tenders', request as Record<string, unknown>)
 }
 
 // Export API client object for easier testing and mocking

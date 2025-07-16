@@ -20,7 +20,7 @@ vi.mock('@/hooks/use-url-sync', () => ({
 
 // Mock the base pagination component
 vi.mock('./pagination-component', () => ({
-  PaginationComponent: ({ pagination, onPageChange, onPageSizeChange }: any) => (
+  PaginationComponent: ({ pagination, onPageChange, onPageSizeChange }: { pagination: PaginationInfo; onPageChange: (page: number) => void; onPageSizeChange: (size: number) => void }) => (
     <div data-testid="pagination-component">
       <button
         data-testid="page-change-btn"

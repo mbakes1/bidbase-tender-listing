@@ -76,14 +76,14 @@ export function PaginationComponent({
 
   const handlePageClick = (page: number) => {
     if (page !== current_page && page >= 1 && page <= total_pages) {
-      onPageChange(page)
+      onPageChange?.(page)
     }
   }
 
   const handlePageSizeChange = (newPageSize: string) => {
     const size = parseInt(newPageSize, 10)
-    if (PAGE_SIZES.includes(size as any)) {
-      onPageSizeChange(size)
+    if (PAGE_SIZES.includes(size as (typeof PAGE_SIZES)[number])) {
+      onPageSizeChange?.(size)
     }
   }
 

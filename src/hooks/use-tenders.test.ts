@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { useTenders, usePrefetchTenders, useInvalidateTenders, SWR_CONFIG } from './use-tenders'
 import type { GetTendersRequest, TenderListResponse } from '../types'
 
@@ -72,7 +72,7 @@ describe('useTenders', () => {
       isLoading: false,
       isValidating: false,
       mutate: mockMutate
-    })
+    } as ReturnType<typeof useSWR>)
   })
 
   it('should call useSWR with correct parameters for default request', () => {
@@ -134,7 +134,7 @@ describe('useTenders', () => {
       isLoading: true,
       isValidating: false,
       mutate: mockMutate
-    })
+    } as ReturnType<typeof useSWR>)
 
     const { result } = renderHook(() => useTenders())
 
@@ -211,8 +211,12 @@ describe('usePrefetchTenders', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseSWR.mockReturnValue({
+      data: undefined,
+      error: null,
+      isLoading: false,
+      isValidating: false,
       mutate: mockMutate
-    })
+    } as ReturnType<typeof useSWR>)
     mockGetTenders.mockResolvedValue(mockTenderListResponse)
   })
 
@@ -249,8 +253,12 @@ describe('useInvalidateTenders', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseSWR.mockReturnValue({
+      data: undefined,
+      error: null,
+      isLoading: false,
+      isValidating: false,
       mutate: mockMutate
-    })
+    } as ReturnType<typeof useSWR>)
   })
 
   it('should invalidate specific request', async () => {

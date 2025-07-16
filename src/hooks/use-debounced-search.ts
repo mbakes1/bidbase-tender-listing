@@ -22,7 +22,7 @@ export const useDebouncedSearch = (
   const [filters, setFilters] = useState<SearchFilters>(initialFilters)
   
   // Ref to store the timeout ID
-  const debounceTimeoutRef = useRef<NodeJS.Timeout>()
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Effect to handle debouncing of search term
   useEffect(() => {
@@ -97,7 +97,7 @@ export const useDebouncedSearch = (
  */
 export const useDebounce = <T>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (timeoutRef.current) {
@@ -122,11 +122,11 @@ export const useDebounce = <T>(value: T, delay: number): T => {
  * Hook for creating a debounced callback function
  * Useful for debouncing function calls like API requests
  */
-export const useDebouncedCallback = <T extends (...args: any[]) => any>(
+export const useDebouncedCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
   delay: number
 ): T => {
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const callbackRef = useRef(callback)
 
   // Update callback ref when callback changes

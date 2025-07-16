@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 export interface UrlSyncOptions {
@@ -17,7 +17,6 @@ export function useUrlSync() {
 
   const updateUrl = useCallback((options: UrlSyncOptions) => {
     const params = new URLSearchParams(searchParams.toString())
-    let hasChanges = false
     
     // Update or remove parameters based on provided options
     if (options.page !== undefined) {
@@ -26,7 +25,6 @@ export function useUrlSync() {
       } else {
         params.delete('page')
       }
-      hasChanges = true
     }
     
     if (options.pageSize !== undefined) {
@@ -35,7 +33,6 @@ export function useUrlSync() {
       } else {
         params.delete('pageSize')
       }
-      hasChanges = true
     }
     
     if (options.search !== undefined) {
@@ -44,7 +41,6 @@ export function useUrlSync() {
       } else {
         params.delete('search')
       }
-      hasChanges = true
     }
     
     if (options.province !== undefined) {
@@ -53,7 +49,6 @@ export function useUrlSync() {
       } else {
         params.delete('province')
       }
-      hasChanges = true
     }
     
     if (options.industry !== undefined) {
@@ -62,14 +57,10 @@ export function useUrlSync() {
       } else {
         params.delete('industry')
       }
-      hasChanges = true
     }
     
-    // Only update URL if there were actual changes
-    if (hasChanges) {
-      const newUrl = params.toString() ? `?${params.toString()}` : ''
-      router.push(newUrl, { scroll: false })
-    }
+    const newUrl = params.toString() ? `?${params.toString()}` : ''
+    router.push(newUrl, { scroll: false })
   }, [router, searchParams])
 
   const getUrlParams = useCallback((): UrlSyncOptions => {
@@ -77,8 +68,8 @@ export function useUrlSync() {
     const pageSize = parseInt(searchParams.get('pageSize') || '12', 10)
     
     return {
-      page: isNaN(page) ? 1 : page,
-      pageSize: isNaN(pageSize) ? 12 : pageSize,
+      page: isNaN(page) || page < 1 ? 1 : page,
+      pageSize: isNaN(pageSize) || ![12, 24, 48].includes(pageSize) ? 12 : pageSize,
       search: searchParams.get('search') || '',
       province: searchParams.get('province') || '',
       industry: searchParams.get('industry') || '',

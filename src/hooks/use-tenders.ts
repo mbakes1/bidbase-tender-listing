@@ -75,7 +75,7 @@ export const usePrefetchTenders = () => {
   
   return (request: GetTendersRequest = {}) => {
     const key = createTendersKey(request)
-    return mutate(key, tendersFetcher(key), { revalidate: false })
+    return mutate(key)
   }
 }
 
@@ -96,9 +96,8 @@ export const useInvalidateTenders = () => {
     // Invalidate all tenders cache
     invalidateAll: () => {
       return mutate(
-        (key) => typeof key === 'string' && key.startsWith('tenders:'),
-        undefined,
-        { revalidate: true }
+        (key: unknown) => typeof key === 'string' && key.startsWith('tenders:'),
+        undefined
       )
     }
   }

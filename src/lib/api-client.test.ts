@@ -4,8 +4,7 @@ import {
   getTenders, 
   ApiError, 
   NetworkError, 
-  ValidationError,
-  API_CONFIG 
+  ValidationError
 } from './api-client'
 import type { GetTendersRequest, TenderListResponse } from '../types'
 
@@ -201,7 +200,6 @@ describe('API Client', () => {
   describe('Internal Utilities', () => {
     describe('sleep', () => {
       it('should delay execution', async () => {
-        const start = Date.now()
         const sleepPromise = apiClient._internal.sleep(1000)
         
         vi.advanceTimersByTime(1000)

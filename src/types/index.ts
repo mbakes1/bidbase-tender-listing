@@ -140,13 +140,12 @@ export interface TenderCardProps {
   onDocumentClick?: (document: TenderDocument) => void
 }
 
-export interface SearchInputProps {
+export interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   value: string
   onChange: (value: string) => void
   onClear: () => void
   placeholder?: string
   isLoading?: boolean
-  className?: string
 }
 
 export interface FilterPanelProps {
@@ -154,12 +153,13 @@ export interface FilterPanelProps {
   filterOptions: FilterOptions
   onChange: (filters: SearchFilters) => void
   onReset: () => void
+  className?: string
 }
 
 export interface PaginationProps {
   pagination: PaginationInfo
-  onPageChange: (page: number) => void
-  onPageSizeChange: (pageSize: number) => void
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 export interface StatsDashboardProps {

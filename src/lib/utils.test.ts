@@ -68,8 +68,8 @@ describe('utils', () => {
     })
 
     it('handles non-string input', () => {
-      expect(parseSearchTerms(null as any)).toEqual([])
-      expect(parseSearchTerms(undefined as any)).toEqual([])
+      expect(parseSearchTerms(null as unknown as string)).toEqual([])
+      expect(parseSearchTerms(undefined as unknown as string)).toEqual([])
     })
   })
 
