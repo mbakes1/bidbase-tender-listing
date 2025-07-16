@@ -146,6 +146,7 @@ export interface SearchInputProps {
   onClear: () => void
   placeholder?: string
   isLoading?: boolean
+  className?: string
 }
 
 export interface FilterPanelProps {
